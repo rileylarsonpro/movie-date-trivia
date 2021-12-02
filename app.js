@@ -21,27 +21,30 @@ function getRandomInt(max){
     return Math.floor(Math.random() * max);
 }
 
-function formatMovie(movie){
+function formatMovie(movie, difficulty){
+    if(difficulty < 2){
+        difficulty = 2
+    }
     let question = {title: movie.Title, correct: movie.Year}
     let years = [null, null, null]
     let randPostion = getRandomInt(3)
     years[randPostion] = movie.Year
     years.forEach((year,index) => {
-        let plusOrMinus = getRandomInt(1)
+        let plusOrMinus = getRandomInt(2)
         if(year === null){
             let yearToAdd = 0
             if(plusOrMinus === 0) {
-                yearToAdd = (movie.Year - getRandomInt(7)) - 1
+                yearToAdd = (movie.Year - getRandomInt(difficulty)) - 1
                 // While answer is not unique 
                 while(years.findIndex( year => year === yearToAdd) !== - 1){
-                    yearToAdd = (movie.Year - getRandomInt(7)) - 1
+                    yearToAdd = (movie.Year - getRandomInt(difficulty)) - 1
                 }
                 years[index] = yearToAdd
             }
             else {
-                yearToAdd = (movie.Year + getRandomInt(7)) + 1
-                while(years.findIndex( year => year === yearToAdd) !== - 1){
-                    yearToAdd = (movie.Year + getRandomInt(7)) + 1
+                yearToAdd = (movie.Year + getRandomInt(difficulty)) + 1
+                while((years.findIndex( year => year === yearToAdd) !== - 1) && yearToAdd < new Date().getFullYear()){
+                    yearToAdd = (movie.Year + getRandomInt(difficulty)) + 1
                 }
                 years[index] = yearToAdd
             }
@@ -54,12 +57,12 @@ function formatMovie(movie){
 }
 
 
-app.get('/movie', cors(), (req,res) => {
+app.get('/movie/:difficulty', cors(), (req,res) => {
     try {
         Movie.countDocuments({}, async function( err, count){
             var rand = getRandomInt(count)
             let movieToSend = await Movie.findOne().skip(rand)
-            return res.status(200).send(formatMovie(movieToSend))
+            return res.status(200).send(formatMovie(movieToSend, req.params.difficulty))
         })
     } catch(err) {
         return res.status(500).send({message: "Internal Server Error", error: err});
