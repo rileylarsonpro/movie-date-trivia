@@ -37,14 +37,20 @@ function formatMovie(movie, difficulty){
                 yearToAdd = (movie.Year - getRandomInt(difficulty)) - 1
                 // While answer is not unique 
                 while(years.findIndex( year => year === yearToAdd) !== - 1){
-                    yearToAdd = (movie.Year - getRandomInt(difficulty)) - 1
+                    yearToAdd = (yearToAdd - getRandomInt(difficulty)) - 1
                 }
                 years[index] = yearToAdd
             }
             else {
                 yearToAdd = (movie.Year + getRandomInt(difficulty)) + 1
-                while((years.findIndex( year => year === yearToAdd) !== - 1) && yearToAdd < new Date().getFullYear()){
-                    yearToAdd = (movie.Year + getRandomInt(difficulty)) + 1
+                let counter = 0
+                while((years.findIndex( year => year === yearToAdd) !== - 1) || yearToAdd > new Date().getFullYear()){
+                    yearToAdd = (yearToAdd + getRandomInt(difficulty)) + 1
+                    //fallback
+                    counter += 1
+                    if(counter > 10){
+                        break;
+                    }
                 }
                 years[index] = yearToAdd
             }
